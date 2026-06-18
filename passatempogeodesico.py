@@ -147,7 +147,7 @@ def mover_jogador(passos):
         st.session_state.status_jogo = "minigame_criptograma"
     else:
         # Puxa pergunta do banco correspondente ao tema
-        filtradas = [q for q in st.session_state.banco_perguntas]
+        filtradas = [q for q in st.session_state.banco_perguntas if q["cat"] == tema_filtro]
         if filtradas:
             st.session_state.pergunta_atual = random.choice(filtradas)
             st.session_state.status_jogo = "pergunta"
@@ -270,6 +270,7 @@ with aba_jogo:
     elif st.session_state.status_jogo == "pergunta":
         q = st.session_state.pergunta_atual
         st.subheader(f"❓ Avaliação Teórica - Categoria: {q['cat']} ({q['dif']})")
+        st.markdown(f"### **{q['p']}**")
         resp = st.radio("Escolha o parecer técnico correto baseado nas normas de engenharia:", q['opcoes'], key="radio_pergunta_central")
 
         if st.button("Homologar Resposta Técnica"):
