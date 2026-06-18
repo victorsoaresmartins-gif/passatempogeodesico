@@ -146,7 +146,14 @@ def mover_jogador(passos):
     elif pos == 38:
         st.session_state.status_jogo = "minigame_criptograma"
     else:
-        # Puxa pergunta do banco correspondente ao tema
+        # CORREÇÃO: Inicializa e define o tema correto antes de realizar a filtragem
+        if pos < 10: tema_filtro = "Topografia"
+        elif pos < 20: tema_filtro = "GNSS"
+        elif pos < 30: tema_filtro = "Geodésia Física"
+        elif pos < 40: tema_filtro = "Cartografia"
+        else: tema_filtro = "SGB"
+        
+        # Puxa pergunta do banco correspondente ao tema de forma segura
         filtradas = [q for q in st.session_state.banco_perguntas if q["cat"] == tema_filtro]
         if filtradas:
             st.session_state.pergunta_atual = random.choice(filtradas)
