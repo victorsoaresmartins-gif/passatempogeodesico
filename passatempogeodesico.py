@@ -118,7 +118,7 @@ def obter_setor_atual(pos):
     elif pos < 40: return "🗺️ SETOR 4: Cartografia e Projeções", "🟧", "Casas 30 a 39. Deformações lineares, fusos UTM e convergências meridianas."
     else: return "🏛️ SETOR 5: Sistema Geodésico Brasileiro", "🔴", "Casas 40 a 49. Legislações do IBGE, SIRGAS 2000 e marcos geodésicos estruturais."
 
-# GERENCIADOR DE AVANÇO
+# GERENCIADOR DE AVANÇO (SISTEMA ANTI-REPETIÇÃO INTEGRADO)
 def mover_jogador(passos):
     st.session_state.posicao += passos
     st.toast(f"🚶 Movendo {passos} marcos na rede...", icon="🏃‍♂️")
@@ -146,13 +146,29 @@ def mover_jogador(passos):
     elif pos == 38:
         st.session_state.status_jogo = "minigame_criptograma"
     else:
-        # CORREÇÃO: Inicializa e define o tema correto antes de realizar a filtragem
         if pos < 10: tema_filtro = "Topografia"
         elif pos < 20: tema_filtro = "GNSS"
         elif pos < 30: tema_filtro = "Geodésia Física"
         elif pos < 40: tema_filtro = "Cartografia"
         else: tema_filtro = "SGB"
         
+        # Filtra as perguntas do tema
+        filtradas = [q for q in st.session_state.banco_perguntas if q["cat"] == tema_filtro]
+        
+        if filtradas:
+            # MECÂNICA ANTI-REPETIÇÃO: Filtra para remover a pergunta que acabou de ser exibida
+            if st.session_state.pergunta_atual is not None:
+                # Cria uma lista secundária sem a pergunta atual para evitar repetições seguidas
+                nao_repetidas = [q for q in filtradas if q["p"] != st.session_state.pergunta_atual["p"]]
+                # Se sobrarem opções não repetidas, escolhe uma delas. Se não, usa a lista cheia
+                lista_sorteio = nao_repetidas if nao_repetidas else filtradas
+            else:
+                lista_sorteio = filtradas
+
+            st.session_state.pergunta_atual = random.choice(lista_sorteio)
+            st.session_state.status_jogo = "pergunta"
+        else:
+            st.session_state.status_jogo = "jogar"
         # Puxa pergunta do banco correspondente ao tema de forma segura
         filtradas = [q for q in st.session_state.banco_perguntas if q["cat"] == tema_filtro]
         if filtradas:
